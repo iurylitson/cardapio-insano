@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale-1.0" />
     <title>Insano Burger Cardápio</title>
     
     <!-- 1. Carrega o Tailwind CSS (para o design funcionar) -->
@@ -53,7 +53,7 @@
         { name: 'Carne de Sol', price: 6.00 },
         { name: 'Cebola', price: 0.50 },
         { name: 'Cebola Roxa', price: 0.50 },
-        { name: 'Cebola Caramelizada', price: 2.00 }, // <-- SUA MUDANÇA
+        { name: 'Cebola Caramelizada', price: 2.00 },
         { name: 'Cheddar', price: 2.50 },
         { name: 'Cream Cheese', price: 4.00 },
         { name: 'Geleia de Pimenta', price: 2.00 },
@@ -68,6 +68,39 @@
         { name: 'Queijo Coalho', price: 2.50 },
         { name: 'Tomate', price: 0.50 }
       ];
+
+      // --- NOVA LISTA DE ITENS PARA MONTAR O HAMBÚRGUER ---
+      const buildBurgerOptions = [
+        { category: 'Pães', items: [
+          { name: 'Pão Bola', price: 1.00 },
+          { name: 'Pão Brioche', price: 3.00 },
+          { name: 'Pão Árabe', price: 3.00 },
+        ]},
+        { category: 'Carnes e Proteínas', items: [
+          { name: 'Hamburguer Carne', price: 4.50 },
+          { name: 'Hamburguer Frango', price: 4.50 },
+          { name: 'Carne de Sol', price: 6.00 },
+          { name: 'Bacon', price: 3.00 },
+          { name: 'Calabresa', price: 2.50 },
+          { name: 'Camarão', price: 2.00 },
+          { name: 'Ovo', price: 1.50 },
+        ]},
+        { category: 'Queijos & Molhos', items: [
+          { name: 'Queijo Coalho', price: 2.50 },
+          { name: 'Cheddar', price: 2.50 },
+          { name: 'Cream Cheese', price: 4.00 },
+          { name: 'Geleia de Pimenta', price: 2.00 },
+        ]},
+        { category: 'Outros', items: [
+          { name: 'Onion Rings', price: 3.00 },
+          { name: 'Piccles', price: 1.00 },
+          { name: 'Tomate', price: 0.50 },
+          { name: 'Cebola', price: 0.50 },
+          { name: 'Cebola Roxa', price: 0.50 },
+          { name: 'Cebola Caramelizada', price: 2.00 },
+        ]}
+      ];
+      // --- FIM DA NOVA LISTA ---
 
       const menuData = {
         burgers: [
@@ -84,30 +117,7 @@
           { id: 'b11', name: 'Biruta (Especial)', price: 18.00, ingredients: ['Pão Brioche', 'Tiras de Frango Empanado', 'Geleia de Pimenta', 'Bacon', 'Onion Rings', 'Piccles', 'Molho Especial'] },
           { id: 'b12', name: 'Pancada (Especial)', price: 20.00, ingredients: ['Pão Brioche', 'Blend 100g Bovino', 'Camarão Empanado', 'Cream Cheese', 'Molho Especial'] },
         ],
-        // --- NOVA CATEGORIA: Monte seu Hambúrguer ---
-        buildYourOwn: [
-          { id: 'byo1', name: 'Pão Bola', price: 1.00 },
-          { id: 'byo2', name: 'Pão Brioche', price: 3.00 },
-          { id: 'byo3', name: 'Pão Árabe', price: 3.00 },
-          { id: 'byo4', name: 'Hamburguer Carne', price: 4.50 },
-          { id: 'byo5', name: 'Hamburguer Frango', price: 4.50 },
-          { id: 'byo6', name: 'Carne de Sol', price: 6.00 },
-          { id: 'byo7', name: 'Bacon', price: 3.00 },
-          { id: 'byo8', name: 'Calabresa', price: 2.50 },
-          { id: 'byo9', name: 'Camarão', price: 2.00 },
-          { id: 'byo10', name: 'Ovo', price: 1.50 },
-          { id: 'byo11', name: 'Queijo Coalho', price: 2.50 },
-          { id: 'byo12', name: 'Cheddar', price: 2.50 },
-          { id: 'byo13', name: 'Cream Cheese', price: 4.00 },
-          { id: 'byo14', name: 'ONION RINGS', price: 3.00 },
-          { id: 'byo15', name: 'Geleia de Pimenta', price: 2.00 },
-          { id: 'byo16', name: 'Piccles', price: 1.00 },
-          { id: 'byo17', name: 'Tomate', price: 0.50 },
-          { id: 'byo18', name: 'Cebola', price: 0.50 },
-          { id: 'byo19', name: 'Cebola Roxa', price: 0.50 },
-          { id: 'byo20', name: 'Cebola Caramelizada', price: 2.00 },
-        ],
-        // --- FIM DA NOVA CATEGORIA ---
+        // --- SEÇÃO "Monte seu Hambúrguer" REMOVIDA DAQUI ---
         sides: [
           { id: 's1', name: 'Batata Frita 300g', price: 12.00 },
           { id: 's2', name: 'Batata Especial 500g (Cheddar e Bacon)', price: 20.00 },
@@ -314,7 +324,8 @@
               )}
               {item.added && item.added.length > 0 && (
                 <p className="mt-1 text-xs text-green-400 italic">
-                  Com: {item.added.map(a => a.name).join(', ')}
+                  {/* Lógica para mostrar "Itens:" ou "Extra:" */}
+                  {item.id.startsWith('byo_') ? 'Itens:' : 'Extra:'} {item.added.map(a => a.name).join(', ')}
                 </p>
               )}
               {item.optionChoice && (
@@ -375,6 +386,7 @@
           address: '',
           payment: 'dinheiro',
           changeFor: '', // <-- NOVO CAMPO PARA O TROCO
+          deliveryOption: 'entrega', // <-- NOVO CAMPO PARA ENTREGA
         });
         const [orderSuccess, setOrderSuccess] = useState(false);
         const [formError, setFormError] = useState('');
@@ -387,6 +399,10 @@
         // --- Estados para o Modal de Opções (Suco, Pitchulinha, Latinha) ---
         const [observingItemWithOptions, setObservingItemWithOptions] = useState(null);
         const [selectedOption, setSelectedOption] = useState('');
+
+        // --- NOVOS ESTADOS PARA O "Monte seu Hambúrguer" ---
+        const [isBuildingBurger, setIsBuildingBurger] = useState(false);
+        const [customBurgerItems, setCustomBurgerItems] = useState([]); 
 
         // --- FUNÇÕES DE LÓGICA (só as que o App precisa) ---
 
@@ -453,10 +469,20 @@
         
         // Função para formatar o pedido (pura, não mexe com estado)
         const formatOrderForWhatsApp = (cart, formData, total) => {
+          const deliveryFee = 3.00; // Define a taxa de entrega
+          const itemsTotal = total - (formData.deliveryOption === 'entrega' ? deliveryFee : 0);
+
           let orderString = "*Novo Pedido - Insano Burguer*\n\n";
           orderString += `*Cliente:* ${formData.name}\n`;
           orderString += `*Telefone:* ${formData.phone}\n`;
-          orderString += `*Endereço:* ${formData.address}\n`;
+          
+          // --- Adiciona tipo de entrega e endereço (se houver) ---
+          orderString += `*Tipo de Entrega:* ${formData.deliveryOption === 'entrega' ? 'Entrega' : 'Retirada no balcão'}\n`;
+          if (formData.deliveryOption === 'entrega') {
+            orderString += `*Endereço:* ${formData.address}\n`;
+          }
+          // --- Fim da adição ---
+
           orderString += `*Pagamento:* ${formData.payment}\n`;
           
           // --- Adicionar informação de troco ---
@@ -474,8 +500,9 @@
           const optionItems = cart.filter(item => item.optionChoice); 
           
           // --- NOVOS FILTROS PARA SEPARAR ---
-          // Pega itens do "Monte seu Hambúrguer" (começam com 'byo')
-          const buildYourOwnItems = cart.filter(item => item.qty && item.id.startsWith('byo'));
+          // Pega itens do "Monte seu Hambúrguer" (começam com 'byo') - ESTE FILTRO NÃO É MAIS NECESSÁRIO
+          // const buildYourOwnItems = cart.filter(item => item.qty && item.id.startsWith('byo'));
+          
           // Pega as Batatas (começam com 's')
           const sideItems = cart.filter(item => item.qty && item.id.startsWith('s'));
           // Pega Bebidas sem opção (começam com 'd' e não têm 'optionChoice')
@@ -489,13 +516,16 @@
               // CORREÇÃO DO ERRO 'toFixed' AQUI
               const price = item.finalPrice !== undefined ? item.finalPrice : item.price;
               orderString += `1x *${item.name}* (R$ ${price.toFixed(2).replace('.', ',')})\n`;
-              if (item.removed && item.removed.length > 0) {
+              
+              if (item.removed && item.removed.length > 0) { // Para burgers normais
                 orderString += `  *OBS: (Sem: ${item.removed.join(', ')})* ⚠️\n`;
               }
-              if (item.added && item.added.length > 0) {
-                orderString += `  *EXTRA: (Com: ${item.added.map(a => a.name).join(', ')})* 💲\n`;
+              if (item.added && item.added.length > 0) { // Para burgers normais E montados
+                // Mudar o texto se for montado
+                const label = item.id.startsWith('byo_') ? 'Itens:' : 'EXTRA:';
+                orderString += `  *${label} (${item.added.map(a => a.name).join(', ')})* 💲\n`;
               }
-              if ((!item.removed || item.removed.length === 0) && (!item.added || item.added.length === 0)) {
+              if ((!item.removed || item.removed.length === 0) && (item.added && item.added.length === 0)) { // Burger normal, sem extras
                 orderString += `  (Padrão)\n`;
               }
             });
@@ -511,14 +541,8 @@
           }
 
           // --- SEÇÕES NOVAS E SEPARADAS ---
-          if (buildYourOwnItems.length > 0) {
-            orderString += "*Monte seu Hambúrguer:*\n";
-            buildYourOwnItems.forEach(item => {
-              orderString += `${item.qty}x *${item.name}*\n`;
-            });
-            orderString += "\n";
-          }
-
+          // NÃO PRECISAMOS MAIS DA SEÇÃO "Monte seu Hambúrguer" aqui, pois eles são tratados como 'burgers'
+          
           if (sideItems.length > 0) {
             orderString += "*Batatas:*\n";
             sideItems.forEach(item => {
@@ -536,7 +560,13 @@
           }
           // --- FIM DAS SEÇÕES NOVAS ---
 
+          // --- Adiciona Subtotal, Taxa e Total ---
+          orderString += `\n*Subtotal (Itens): R$ ${itemsTotal.toFixed(2).replace('.', ',')}*\n`;
+          if (formData.deliveryOption === 'entrega') {
+            orderString += `*Taxa de Entrega: R$ ${deliveryFee.toFixed(2).replace('.', ',')}*\n`;
+          }
           orderString += `*TOTAL: R$ ${total.toFixed(2).replace('.', ',')}*`;
+          // --- Fim da adição ---
           return orderString;
         };
 
@@ -545,17 +575,29 @@
           e.preventDefault();
           setFormError('');
           
-          if (!formData.name || !formData.address || !formData.phone) {
-            setFormError('Por favor, preencha Nome, Telefone e Endereço.');
+          // --- Validação atualizada ---
+          if (!formData.name || !formData.phone) {
+            setFormError('Por favor, preencha Nome e Telefone.');
             setTimeout(() => setFormError(''), 3000);
             return;
           }
+          if (formData.deliveryOption === 'entrega' && !formData.address) {
+            setFormError('Por favor, preencha o Endereço para entrega.');
+            setTimeout(() => setFormError(''), 3000);
+            return;
+          }
+          // --- Fim da validação ---
           
           const yourWhatsAppNumber = '5588988137381'; // Substitua pelo seu número
-          // Pega o total do contexto
-          const total = calculateTotal();
+          
+          // --- Cálculo do Total Final ---
+          const itemsTotal = calculateTotal();
+          const deliveryFee = 3.00;
+          const finalTotal = itemsTotal + (formData.deliveryOption === 'entrega' ? deliveryFee : 0);
+          // --- Fim do cálculo ---
+
           // Pega o carrinho do contexto
-          const orderText = formatOrderForWhatsApp(cart, formData, total);
+          const orderText = formatOrderForWhatsApp(cart, formData, finalTotal); // Passa o finalTotal
           const encodedText = encodeURIComponent(orderText);
           const whatsappUrl = `https://wa.me/${yourWhatsAppNumber}?text=${encodedText}`;
 
@@ -563,13 +605,56 @@
 
           // Limpa o carrinho usando a função do contexto
           clearCart();
-          setFormData({ name: '', phone: '', address: '', payment: 'dinheiro', changeFor: '' }); // <-- Limpar aqui
+          setFormData({ name: '', phone: '', address: '', payment: 'dinheiro', changeFor: '', deliveryOption: 'entrega' }); // <-- Limpar aqui
           
           setOrderSuccess(true);
           setTimeout(() => {
             setOrderSuccess(false);
           }, 3000);
         };
+        
+        // --- NOVAS FUNÇÕES PARA O "Monte seu Hambúrguer" ---
+        const handleToggleCustomItem = (item) => {
+          setCustomBurgerItems((prev) =>
+            prev.some(i => i.name === item.name)
+              ? prev.filter((i) => i.name !== item.name)
+              : [...prev, item]
+          );
+        };
+
+        const calculateCustomBurgerTotal = () => {
+          return customBurgerItems.reduce((total, item) => total + item.price, 0);
+        };
+
+        const handleOpenBuildBurgerModal = () => {
+          setCustomBurgerItems([]); // Limpa o modal
+          setIsBuildingBurger(true);
+        };
+        
+        const handleCloseBuildBurgerModal = () => {
+          setIsBuildingBurger(false);
+          setCustomBurgerItems([]); // Limpa por via das dúvidas
+        };
+        
+        const handleAddCustomBurgerToCart = () => {
+          if (customBurgerItems.length === 0) return; // Não adiciona burger vazio
+          
+          const finalPrice = calculateCustomBurgerTotal();
+          
+          const newBurgerItem = {
+            id: `byo_${crypto.randomUUID()}`, // ID Único para não agrupar
+            name: 'Hambúrguer Montado',
+            cartItemId: crypto.randomUUID(),
+            removed: [], // Não se aplica
+            added: customBurgerItems, // <-- AQUI VÃO OS ITENS
+            finalPrice: finalPrice,
+          };
+
+          addUniqueItemToCart(newBurgerItem);
+          handleCloseBuildBurgerModal();
+        };
+        // --- FIM DAS NOVAS FUNÇÕES ---
+        
         
         // --- Funções de controle dos Modais (permanecem no App) ---
           
@@ -735,6 +820,64 @@
               </div>
             )}
 
+            {/* --- NOVO MODAL: MONTE SEU HAMBÚRGUER --- */}
+            {isBuildingBurger && (
+              <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40 p-4">
+                <div className="bg-gray-900 rounded-lg p-6 w-full max-w-md border border-yellow-500 max-h-[90vh] flex flex-col">
+                  <h3 className="text-xl font-semibold mb-4 text-white text-center">
+                    Monte seu Hambúrguer
+                  </h3>
+                  <div className="overflow-y-auto space-y-4 pr-2">
+                    {buildBurgerOptions.map((category) => (
+                      <div key={category.category} className="border border-gray-700 rounded-lg p-3">
+                        <label className="block text-lg font-bebas tracking-wider font-bold text-yellow-500 mb-2">
+                          {category.category}
+                        </label>
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          {category.items.map((item) => (
+                            <label key={item.name} className="flex items-center justify-between p-2 rounded-md hover:bg-gray-800 cursor-pointer">
+                              <div className="flex items-center space-x-3">
+                                <input
+                                  type="checkbox"
+                                  checked={customBurgerItems.some(i => i.name === item.name)}
+                                  onChange={() => handleToggleCustomItem(item)}
+                                  className="h-5 w-5 rounded bg-gray-700 border-gray-600 text-green-500 focus:ring-green-500"
+                                />
+                                <span className="text-white">{item.name}</span>
+                              </div>
+                              <span className="text-sm text-yellow-500 font-bold">
+                                + R$ {item.price.toFixed(2).replace('.', ',')}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Preço Total do Hambúrguer Montado */}
+                  <div className="text-lg font-bold text-right my-4 text-white">
+                    Total do Hambúrguer: 
+                    <span className="text-yellow-500 ml-2">
+                      R$ {calculateCustomBurgerTotal().toFixed(2).replace('.', ',')}
+                    </span>
+                  </div>
+
+                  {/* Botões do Modal */}
+                  <div className="flex justify-end space-x-3 mt-2 pt-4 border-t border-gray-700">
+                    <button onClick={handleCloseBuildBurgerModal} className="px-4 py-2 text-sm font-medium text-gray-200 bg-gray-600 rounded-lg hover:bg-gray-500">
+                      Cancelar
+                    </button>
+                    <button onClick={handleAddCustomBurgerToCart} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700" disabled={customBurgerItems.length === 0}>
+                      Adicionar ao Pedido
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* --- FIM DO NOVO MODAL --- */}
+
+
             {/* --- Pop-up de Item Adicionado (lendo do contexto) --- */}
             {addedItemName && (
               <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-800 border-2 border-yellow-500 text-white p-5 rounded-lg shadow-lg z-50 animate-pulse">
@@ -757,9 +900,27 @@
               
               {/* Coluna do Cardápio */}
               <div className="lg:col-span-2">
+                
+                {/* --- NOVA SEÇÃO: Monte seu Hambúrguer (Botão) --- */}
+                <section className="mb-6">
+                  <div 
+                    onClick={handleOpenBuildBurgerModal}
+                    className="flex flex-col justify-center items-center p-6 bg-gray-900 rounded-lg shadow-sm cursor-pointer hover:bg-gray-800 border-2 border-dashed border-yellow-500 transition-all"
+                  >
+                    <span className="text-3xl mb-2">➕</span>
+                    <h3 className="font-semibold text-white font-bebas tracking-wide text-2xl">
+                      Monte seu Próprio Hambúrguer
+                    </h3>
+                    <p className="text-sm text-gray-400 mt-1">
+                      Escolha seus ingredientes favoritos do zero.
+                    </p>
+                  </div>
+                </section>
+                {/* --- FIM DA NOVA SEÇÃO --- */}
+                
                 {/* Seção de Burgers */}
                 <section className="mb-6">
-                  <h3 className="text-3xl font-bebas tracking-wider font-bold mb-3 text-yellow-500 border-b border-gray-700 pb-1 uppercase">Hambúrgueres</h3>
+                  <h3 className="text-3xl font-bebas tracking-wider font-bold mb-3 text-yellow-500 border-b border-gray-700 pb-1 uppercase">Ou Burguers</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {menuData.burgers.map((item) => (
                       <MenuItem
@@ -773,22 +934,7 @@
                   </div>
                 </section>
 
-                {/* --- NOVA SEÇÃO: Monte seu Hambúrguer --- */}
-                <section className="mb-6">
-                  <h3 className="text-3xl font-bebas tracking-wider font-bold mb-3 text-yellow-500 border-b border-gray-700 pb-1 uppercase">Monte seu Hambúrguer</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {menuData.buildYourOwn.map((item) => (
-                      <MenuItem
-                        key={item.id}
-                        item={item}
-                        // Passa apenas as funções de ABRIR o modal
-                        onAddBurger={handleOpenBurgerModal}
-                        onAddOptionItem={handleOpenOptionsModal}
-                      />
-                    ))}
-                  </div>
-                </section>
-                {/* --- FIM DA NOVA SEÇÃO --- */}
+                {/* --- SEÇÃO "Monte seu Hambúrguer" ANTIGA REMOVIDA --- */}
 
                 {/* Seção de Acompanhamentos */}
                 <section className="mb-6">
@@ -858,18 +1004,52 @@
                     )}
                   </div>
                   
-                  {/* Total (usando 'calculateTotal' do contexto) */}
-                  {cart.length > 0 && (
-                    <div className="text-xl font-bold text-right my-4 text-yellow-500">
-                      Total: R$ {calculateTotal().toFixed(2).replace('.', ',')}
-                    </div>
-                  )}
+                  
+                  {/* --- Cálculo e Exibição do Total Atualizado --- */}
+                  {cart.length > 0 && (() => {
+                    const itemsTotal = calculateTotal();
+                    const deliveryFee = 3.00;
+                    const finalTotal = itemsTotal + (formData.deliveryOption === 'entrega' ? deliveryFee : 0);
+
+                    return (
+                      <>
+                        <div className="text-lg font-semibold text-right my-2 text-gray-300">
+                          Subtotal (Itens): R$ {itemsTotal.toFixed(2).replace('.', ',')}
+                        </div>
+                        {formData.deliveryOption === 'entrega' && (
+                          <div className="text-lg font-semibold text-right my-2 text-gray-300 animate-fade-in">
+                            Taxa de Entrega: R$ {deliveryFee.toFixed(2).replace('.', ',')}
+                          </div>
+                        )}
+                        <div className="text-xl font-bold text-right my-4 text-yellow-500">
+                          Total: R$ {finalTotal.toFixed(2).replace('.', ',')}
+                        </div>
+                      </>
+                    );
+                  })()}
+                  {/* --- Fim do Total --- */}
                   
                   {/* Formulário de Checkout (igual) */}
                   {cart.length > 0 && (
                     <form onSubmit={handleSubmitOrder} className="space-y-4">
                       <h3 className="text-2xl font-bebas tracking-wider font-semibold text-yellow-500">Seus Dados</h3>
                       
+                      {/* --- CAMPO DE OPÇÃO DE ENTREGA --- */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-2">Opção de Entrega</label>
+                        <div className="flex flex-wrap gap-3">
+                          <label className="flex items-center space-x-2">
+                            <input type="radio" name="deliveryOption" value="entrega" checked={formData.deliveryOption === 'entrega'} onChange={handleFormChange} className="focus:ring-yellow-500 text-yellow-500" />
+                            <span className="text-gray-200">Entrega (R$ 3,00)</span>
+                          </label>
+                          <label className="flex items-center space-x-2">
+                            <input type="radio" name="deliveryOption" value="retirada" checked={formData.deliveryOption === 'retirada'} onChange={handleFormChange} className="focus:ring-yellow-500 text-yellow-500" />
+                            <span className="text-gray-200">Retirada no balcão</span>
+                          </label>
+                        </div>
+                      </div>
+                      {/* --- FIM DO CAMPO --- */}
+
                       <div>
                         <label className="block text-sm font-medium text-gray-400 mb-1">Nome</label>
                         <input type="text" name="name" value={formData.name} onChange={handleFormChange} required className="w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white" />
@@ -878,10 +1058,23 @@
                         <label className="block text-sm font-medium text-gray-400 mb-1">Telefone (WhatsApp)</label>
                         <input type="tel" name="phone" value={formData.phone} onChange={handleFormChange} required className="w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white" />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Endereço Completo</label>
-                        <input type="text" name="address" placeholder="Rua, Número, Bairro" value={formData.address} onChange={handleFormChange} required className="w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white" />
-                      </div>
+                      
+                      {/* --- CAMPO DE ENDEREÇO CONDICIONAL --- */}
+                      {formData.deliveryOption === 'entrega' && (
+                        <div className="animate-fade-in">
+                          <label className="block text-sm font-medium text-gray-400 mb-1">Endereço Completo</label>
+                          <input 
+                            type="text" 
+                            name="address" 
+                            placeholder="Rua, Número, Bairro" 
+                            value={formData.address} 
+                            onChange={handleFormChange} 
+                            required={formData.deliveryOption === 'entrega'} // Só é obrigatório se for entrega
+                            className="w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white" 
+                          />
+                        </div>
+                      )}
+                      {/* --- FIM DO CAMPO --- */}
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-400 mb-2">Forma de Pagamento</label>
