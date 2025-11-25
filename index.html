@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale-1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Insano Burger Cardápio</title>
     
     <!-- 1. Carrega o Tailwind CSS (para o design funcionar) -->
@@ -384,9 +384,10 @@
           name: '',
           phone: '',
           address: '',
+          referencePoint: '', // <-- NOVO CAMPO ADICIONADO
           payment: 'dinheiro',
-          changeFor: '', // <-- NOVO CAMPO PARA O TROCO
-          deliveryOption: 'entrega', // <-- NOVO CAMPO PARA ENTREGA
+          changeFor: '', 
+          deliveryOption: 'entrega', 
         });
         const [orderSuccess, setOrderSuccess] = useState(false);
         const [formError, setFormError] = useState('');
@@ -462,6 +463,12 @@
             if (name === 'payment' && value !== 'dinheiro') {
               newData.changeFor = '';
             }
+
+            // Se mudou para "Retirada", limpa o endereço e referência
+            if (name === 'deliveryOption' && value === 'retirada') {
+              newData.address = '';
+              newData.referencePoint = '';
+            }
             
             return newData;
           });
@@ -480,6 +487,10 @@
           orderString += `*Tipo de Entrega:* ${formData.deliveryOption === 'entrega' ? 'Entrega' : 'Retirada no balcão'}\n`;
           if (formData.deliveryOption === 'entrega') {
             orderString += `*Endereço:* ${formData.address}\n`;
+            // --- ADICIONA O PONTO DE REFERÊNCIA ---
+            if (formData.referencePoint) {
+              orderString += `*Ponto de Referência:* ${formData.referencePoint}\n`;
+            }
           }
           // --- Fim da adição ---
 
@@ -500,9 +511,6 @@
           const optionItems = cart.filter(item => item.optionChoice); 
           
           // --- NOVOS FILTROS PARA SEPARAR ---
-          // Pega itens do "Monte seu Hambúrguer" (começam com 'byo') - ESTE FILTRO NÃO É MAIS NECESSÁRIO
-          // const buildYourOwnItems = cart.filter(item => item.qty && item.id.startsWith('byo'));
-          
           // Pega as Batatas (começam com 's')
           const sideItems = cart.filter(item => item.qty && item.id.startsWith('s'));
           // Pega Bebidas sem opção (começam com 'd' e não têm 'optionChoice')
@@ -541,7 +549,6 @@
           }
 
           // --- SEÇÕES NOVAS E SEPARADAS ---
-          // NÃO PRECISAMOS MAIS DA SEÇÃO "Monte seu Hambúrguer" aqui, pois eles são tratados como 'burgers'
           
           if (sideItems.length > 0) {
             orderString += "*Batatas:*\n";
@@ -605,7 +612,7 @@
 
           // Limpa o carrinho usando a função do contexto
           clearCart();
-          setFormData({ name: '', phone: '', address: '', payment: 'dinheiro', changeFor: '', deliveryOption: 'entrega' }); // <-- Limpar aqui
+          setFormData({ name: '', phone: '', address: '', referencePoint: '', payment: 'dinheiro', changeFor: '', deliveryOption: 'entrega' }); // <-- Limpar aqui
           
           setOrderSuccess(true);
           setTimeout(() => {
@@ -920,7 +927,7 @@
                 
                 {/* Seção de Burgers */}
                 <section className="mb-6">
-                  <h3 className="text-3xl font-bebas tracking-wider font-bold mb-3 text-yellow-500 border-b border-gray-700 pb-1 uppercase">Burguers</h3>
+                  <h3 className="text-3xl font-bebas tracking-wider font-bold mb-3 text-yellow-500 border-b border-gray-700 pb-1 uppercase">Ou escolha um da casa</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {menuData.burgers.map((item) => (
                       <MenuItem
@@ -1072,6 +1079,21 @@
                             required={formData.deliveryOption === 'entrega'} // Só é obrigatório se for entrega
                             className="w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white" 
                           />
+                          
+                          {/* --- NOVO CAMPO: PONTO DE REFERÊNCIA --- */}
+                          <div className="mt-4">
+                            <label className="block text-sm font-medium text-gray-400 mb-1">Ponto de Referência (Opcional)</label>
+                            <input 
+                              type="text" 
+                              name="referencePoint" 
+                              placeholder="Ex: Próximo à praça, casa amarela" 
+                              value={formData.referencePoint} 
+                              onChange={handleFormChange} 
+                              className="w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white" 
+                            />
+                          </div>
+                          {/* --- FIM DO NOVO CAMPO --- */}
+
                         </div>
                       )}
                       {/* --- FIM DO CAMPO --- */}
