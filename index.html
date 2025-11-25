@@ -29,6 +29,12 @@
       .animate-fade-in {
         animation: fadeIn 0.3s ease-out;
       }
+
+      /* Estilo para botões de quantidade desabilitados */
+      .qty-button:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
     </style>
 
 </head>
@@ -104,8 +110,8 @@
 
       const menuData = {
         burgers: [
-          { id: 'b1', name: 'Arroxado', price: 10.00, ingredients: ['Pão Bola', 'Blend 100g Bovino', 'Queijo Coalho', 'Tomate', 'Molho Especial'] },
-          { id: 'b2', name: 'Alienado', price: 11.00, ingredients: ['Pão Bola', 'Blend 100g Bovino', 'Bacon', 'Cheddar', 'Molho Especial'] },
+          { id: 'b1', name: 'Arroxado', price: 10.00, ingredients: ['Pão', 'Blend 100g Bovino', 'Queijo Coalho', 'Tomate', 'Molho Especial'] },
+          { id: 'b2', name: 'Alienado', price: 11.00, ingredients: ['Pão', 'Blend 100g Bovino', 'Bacon', 'Cheddar', 'Molho Especial'] },
           { id: 'b3', name: 'Esquentado', price: 13.00, ingredients: ['Pão Brioche', 'Blend 100g Bovino', 'Geleia de Pimenta', 'Calabresa', 'Queijo Coalho', 'Cebola Roxa', 'Molho Especial'] },
           { id: 'b4', name: 'Diferenciado', price: 14.00, ingredients: ['Pão Brioche', 'Frango c/ Bacon Empanado', 'Bacon', 'Cream Cheese', 'Tomate', 'Molho Especial'] },
           { id: 'b5', name: 'Alucinado', price: 16.00, ingredients: ['Pão Brioche', 'Blend 100g Bovino', 'Bacon', 'Cheddar', 'Cream Cheese', 'Piccles', 'Molho Especial'] },
@@ -220,6 +226,10 @@
         const calculateTotal = () => {
           return cart.reduce((total, item) => {
             if (item.cartItemId) {
+              // Ajusta o cálculo do total para burgers montados
+              if (item.id.startsWith('byo_')) {
+                return total + item.finalPrice;
+              }
               return total + (item.finalPrice || item.price);
             }
             return total + item.price * (item.qty || 1);
@@ -322,10 +332,11 @@
                   Sem: {item.removed.join(', ')}
                 </p>
               )}
+              {/* --- MUDANÇA AQUI: Mostrar quantidade dos extras/itens --- */}
               {item.added && item.added.length > 0 && (
                 <p className="mt-1 text-xs text-green-400 italic">
                   {/* Lógica para mostrar "Itens:" ou "Extra:" */}
-                  {item.id.startsWith('byo_') ? 'Itens:' : 'Extra:'} {item.added.map(a => a.name).join(', ')}
+                  {item.id.startsWith('byo_') ? 'Itens:' : 'Extra:'} {item.added.map(a => `${a.qty}x ${a.name}`).join(', ')}
                 </p>
               )}
               {item.optionChoice && (
@@ -349,14 +360,14 @@
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => handleDecrementItem(item.id)}
-                className="px-2 py-0.5 text-lg font-bold text-white bg-red-500 rounded-md hover:bg-red-600"
+                className="px-2 py-0.5 text-lg font-bold text-white bg-red-500 rounded-md hover:bg-red-600 qty-button"
               >
                 -
               </button>
               <span className="w-6 text-center text-white">{item.qty}</span>
               <button
                 onClick={() => handleIncrementItem(item.id)}
-                className="px-2 py-0.5 text-lg font-bold text-white bg-green-500 rounded-md hover:bg-green-600"
+                className="px-2 py-0.5 text-lg font-bold text-white bg-green-500 rounded-md hover:bg-green-600 qty-button"
               >
                 +
               </button>
@@ -395,7 +406,9 @@
         // --- Estados para o Modal de Hambúrguer ---
         const [observingItem, setObservingItem] = useState(null);
         const [removedIngredients, setRemovedIngredients] = useState([]);
-        const [addedIngredients, setAddedIngredients] = useState([]);
+        // --- MUDANÇA AQUI: "addedIngredients" agora guarda quantidade ---
+        // Ex: [{ name: 'Bacon', price: 3.00, qty: 2 }]
+        const [addedIngredients, setAddedIngredients] = useState([]); 
 
         // --- Estados para o Modal de Opções (Suco, Pitchulinha, Latinha) ---
         const [observingItemWithOptions, setObservingItemWithOptions] = useState(null);
@@ -403,6 +416,7 @@
 
         // --- NOVOS ESTADOS PARA O "Monte seu Hambúrguer" ---
         const [isBuildingBurger, setIsBuildingBurger] = useState(false);
+        // --- MUDANÇA AQUI: "customBurgerItems" agora guarda quantidade ---
         const [customBurgerItems, setCustomBurgerItems] = useState([]); 
 
         // --- FUNÇÕES DE LÓGICA (só as que o App precisa) ---
@@ -411,24 +425,24 @@
         const handleAddBurger = () => {
           if (!observingItem) return;
 
-          const extrasPrice = addedIngredients.reduce((sum, item) => sum + item.price, 0);
+          // --- MUDANÇA AQUI: Cálculo de preço com quantidade ---
+          const extrasPrice = addedIngredients.reduce((sum, item) => sum + (item.price * item.qty), 0);
           const finalPrice = observingItem.price + extrasPrice;
 
           const newBurgerItem = {
             ...observingItem,
-            cartItemId: crypto.randomUUID(), // <-- MELHORIA: ID 100% Único
+            cartItemId: crypto.randomUUID(), 
             removed: removedIngredients,
-            added: addedIngredients,
+            added: addedIngredients, // "addedIngredients" já tem a quantidade
             finalPrice: finalPrice,
           };
 
-          // Chama a função do contexto para adicionar o item
           addUniqueItemToCart(newBurgerItem);
 
           // Limpa e fecha o modal
           setObservingItem(null);
           setRemovedIngredients([]);
-          setAddedIngredients([]);
+          setAddedIngredients([]); // Limpa os extras
         };
 
         // Adiciona um item com opções (suco, latinha, etc)
@@ -437,11 +451,10 @@
 
           const newItem = {
             ...observingItemWithOptions,
-            cartItemId: crypto.randomUUID(), // <-- MELHORIA: ID 100% Único
-            optionChoice: selectedOption, // Armazena a opção escolhida (ex: 'Sem Açúcar' or 'Pepsi')
+            cartItemId: crypto.randomUUID(), 
+            optionChoice: selectedOption, 
           };
 
-          // Chama a função do contexto
           addUniqueItemToCart(newItem);
 
           // Limpa e fecha o modal
@@ -528,10 +541,10 @@
               if (item.removed && item.removed.length > 0) { // Para burgers normais
                 orderString += `  *OBS: (Sem: ${item.removed.join(', ')})* ⚠️\n`;
               }
-              if (item.added && item.added.length > 0) { // Para burgers normais E montados
-                // Mudar o texto se for montado
+              // --- MUDANÇA AQUI: Mostrar quantidade dos extras/itens ---
+              if (item.added && item.added.length > 0) { 
                 const label = item.id.startsWith('byo_') ? 'Itens:' : 'EXTRA:';
-                orderString += `  *${label} (${item.added.map(a => a.name).join(', ')})* 💲\n`;
+                orderString += `  *${label} (${item.added.map(a => `${a.qty}x ${a.name}`).join(', ')})* 💲\n`;
               }
               if ((!item.removed || item.removed.length === 0) && (item.added && item.added.length === 0)) { // Burger normal, sem extras
                 orderString += `  (Padrão)\n`;
@@ -621,16 +634,43 @@
         };
         
         // --- NOVAS FUNÇÕES PARA O "Monte seu Hambúrguer" ---
-        const handleToggleCustomItem = (item) => {
-          setCustomBurgerItems((prev) =>
-            prev.some(i => i.name === item.name)
-              ? prev.filter((i) => i.name !== item.name)
-              : [...prev, item]
-          );
+
+        // Retorna a quantidade de um item no "Monte seu Hambúrguer"
+        const getCustomItemQty = (item) => {
+          const found = customBurgerItems.find(i => i.name === item.name);
+          return found ? found.qty : 0;
+        };
+
+        const handleIncrementCustomItem = (item) => {
+          setCustomBurgerItems((prev) => {
+            const existing = prev.find(i => i.name === item.name);
+            if (existing) {
+              return prev.map(i => 
+                i.name === item.name ? { ...i, qty: i.qty + 1 } : i
+              );
+            }
+            return [...prev, { ...item, qty: 1 }]; // Adiciona com qty 1
+          });
+        };
+
+        const handleDecrementCustomItem = (item) => {
+          setCustomBurgerItems((prev) => {
+            const existing = prev.find(i => i.name === item.name);
+            if (!existing) return prev; // Não faz nada se não existe
+            
+            if (existing.qty === 1) {
+              return prev.filter(i => i.name !== item.name); // Remove o item
+            }
+            
+            return prev.map(i => 
+              i.name === item.name ? { ...i, qty: i.qty - 1 } : i // Decrementa
+            );
+          });
         };
 
         const calculateCustomBurgerTotal = () => {
-          return customBurgerItems.reduce((total, item) => total + item.price, 0);
+          // --- MUDANÇA AQUI: Cálculo de preço com quantidade ---
+          return customBurgerItems.reduce((total, item) => total + (item.price * item.qty), 0);
         };
 
         const handleOpenBuildBurgerModal = () => {
@@ -653,7 +693,7 @@
             name: 'Hambúrguer Montado',
             cartItemId: crypto.randomUUID(),
             removed: [], // Não se aplica
-            added: customBurgerItems, // <-- AQUI VÃO OS ITENS
+            added: customBurgerItems, // <-- AQUI VÃO OS ITENS com quantidade
             finalPrice: finalPrice,
           };
 
@@ -673,13 +713,40 @@
           );
         };
 
-        const handleToggleAdditional = (additional) => {
-          setAddedIngredients((prev) =>
-            prev.some(item => item.name === additional.name)
-              ? prev.filter((item) => item.name !== additional.name)
-              : [...prev, additional]
-          );
+        // --- NOVAS FUNÇÕES PARA OS EXTRAS (Personalizar) ---
+        const getExtraQty = (item) => {
+          const found = addedIngredients.find(i => i.name === item.name);
+          return found ? found.qty : 0;
         };
+
+        const handleIncrementExtra = (item) => {
+          setAddedIngredients((prev) => {
+            const existing = prev.find(i => i.name === item.name);
+            if (existing) {
+              return prev.map(i => 
+                i.name === item.name ? { ...i, qty: i.qty + 1 } : i
+              );
+            }
+            return [...prev, { ...item, qty: 1 }]; // Adiciona com qty 1
+          });
+        };
+
+        const handleDecrementExtra = (item) => {
+          setAddedIngredients((prev) => {
+            const existing = prev.find(i => i.name === item.name);
+            if (!existing) return prev;
+            
+            if (existing.qty === 1) {
+              return prev.filter(i => i.name !== item.name); // Remove o item
+            }
+            
+            return prev.map(i => 
+              i.name === item.name ? { ...i, qty: i.qty - 1 } : i // Decrementa
+            );
+          });
+        };
+        // --- FIM DAS NOVAS FUNÇÕES (EXTRAS) ---
+
 
         const handleOpenBurgerModal = (item) => {
           setObservingItem(item);
@@ -760,22 +827,37 @@
                         ADICIONAR EXTRAS 💲
                       </label>
                       <div className="space-y-2 max-h-48 overflow-y-auto">
-                        {additionalsData.map((additional) => (
-                          <label key={additional.name} className="flex items-center justify-between p-2 rounded-md hover:bg-gray-800 cursor-pointer">
-                            <div className="flex items-center space-x-3">
-                              <input
-                                type="checkbox"
-                                checked={addedIngredients.some(item => item.name === additional.name)}
-                                onChange={() => handleToggleAdditional(additional)}
-                                className="h-5 w-5 rounded bg-gray-700 border-gray-600 text-green-500 focus:ring-green-500"
-                              />
-                              <span className="text-white">{additional.name}</span>
-                            </div>
-                            <span className="text-sm text-yellow-500 font-bold">
-                              + R$ {additional.price.toFixed(2).replace('.', ',')}
-                            </span>
-                          </label>
-                        ))}
+                        {additionalsData.map((additional) => {
+                          // --- MUDANÇA AQUI: Pega a quantidade atual ---
+                          const qty = getExtraQty(additional);
+                          return (
+                            <label key={additional.name} className="flex items-center justify-between p-2 rounded-md hover:bg-gray-800">
+                              <div className="flex items-center space-x-3">
+                                <span className="text-white">{additional.name}</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm text-yellow-500 font-bold">
+                                  + R$ {additional.price.toFixed(2).replace('.', ',')}
+                                </span>
+                                {/* --- MUDANÇA AQUI: Botões de Quantidade --- */}
+                                <button 
+                                  onClick={(e) => { e.preventDefault(); handleDecrementExtra(additional); }} 
+                                  className="px-2 py-0.5 text-lg font-bold text-white bg-red-500 rounded-md hover:bg-red-600 qty-button"
+                                  disabled={qty === 0}
+                                >
+                                  -
+                                </button>
+                                <span className="w-6 text-center text-white font-bold">{qty}</span>
+                                <button 
+                                  onClick={(e) => { e.preventDefault(); handleIncrementExtra(additional); }} 
+                                  className="px-2 py-0.5 text-lg font-bold text-white bg-green-500 rounded-md hover:bg-green-600 qty-button"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </label>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -841,22 +923,37 @@
                           {category.category}
                         </label>
                         <div className="space-y-2 max-h-48 overflow-y-auto">
-                          {category.items.map((item) => (
-                            <label key={item.name} className="flex items-center justify-between p-2 rounded-md hover:bg-gray-800 cursor-pointer">
-                              <div className="flex items-center space-x-3">
-                                <input
-                                  type="checkbox"
-                                  checked={customBurgerItems.some(i => i.name === item.name)}
-                                  onChange={() => handleToggleCustomItem(item)}
-                                  className="h-5 w-5 rounded bg-gray-700 border-gray-600 text-green-500 focus:ring-green-500"
-                                />
-                                <span className="text-white">{item.name}</span>
-                              </div>
-                              <span className="text-sm text-yellow-500 font-bold">
-                                + R$ {item.price.toFixed(2).replace('.', ',')}
-                              </span>
-                            </label>
-                          ))}
+                          {category.items.map((item) => {
+                            // --- MUDANÇA AQUI: Pega a quantidade atual ---
+                            const qty = getCustomItemQty(item);
+                            return (
+                              <label key={item.name} className="flex items-center justify-between p-2 rounded-md hover:bg-gray-800">
+                                <div className="flex items-center space-x-3">
+                                  <span className="text-white">{item.name}</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-sm text-yellow-500 font-bold">
+                                    + R$ {item.price.toFixed(2).replace('.', ',')}
+                                  </span>
+                                  {/* --- MUDANÇA AQUI: Botões de Quantidade --- */}
+                                  <button 
+                                    onClick={(e) => { e.preventDefault(); handleDecrementCustomItem(item); }} 
+                                    className="px-2 py-0.5 text-lg font-bold text-white bg-red-500 rounded-md hover:bg-red-600 qty-button"
+                                    disabled={qty === 0}
+                                  >
+                                    -
+                                  </button>
+                                  <span className="w-6 text-center text-white font-bold">{qty}</span>
+                                  <button 
+                                    onClick={(e) => { e.preventDefault(); handleIncrementCustomItem(item); }} 
+                                    className="px-2 py-0.5 text-lg font-bold text-white bg-green-500 rounded-md hover:bg-green-600 qty-button"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </label>
+                            );
+                          })}
                         </div>
                       </div>
                     ))}
@@ -927,7 +1024,7 @@
                 
                 {/* Seção de Burgers */}
                 <section className="mb-6">
-                  <h3 className="text-3xl font-bebas tracking-wider font-bold mb-3 text-yellow-500 border-b border-gray-700 pb-1 uppercase">BURGUERS</h3>
+                  <h3 className="text-3xl font-bebas tracking-wider font-bold mb-3 text-yellow-500 border-b border-gray-700 pb-1 uppercase">Ou escolha um da casa</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {menuData.burgers.map((item) => (
                       <MenuItem
